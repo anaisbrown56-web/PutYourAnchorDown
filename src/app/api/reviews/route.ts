@@ -148,4 +148,92 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     )
   }
+
+  
+}
+export async function DELETE(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const { searchParams } = new URL(request.url)
+    const reviewId = searchParams.get('reviewId')
+    if (!reviewId) {
+      return NextResponse.json({ error: 'reviewId is required' }, { status: 400 })
+    }
+
+    const user = await prisma.user.findUnique({ where: { email: session.user.email } })
+    if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 })
+
+    const review = await prisma.review.findUnique({ where: { id: reviewId } })
+    if (!review) return NextResponse.json({ error: 'Review not found' }, { status: 404 })
+    if (review.userId !== user.id) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+
+    await prisma.review.delete({ where: { id: reviewId } })
+
+    // Recalculate location stats
+    const allReviews = await prisma.review.findMany({ where: { locationId: review.locationId } })
+    await prisma.location.update({
+      where: { id: review.locationId },
+      data: {
+        avgRating: allReviews.length ? allReviews.reduce((s, r) => s + r.rating, 0) / allReviews.length : 0,
+        avgWaitMinutes: allReviews.length ? allReviews.reduce((s, r) => s + r.waitMinutes, 0) / allReviews.length : 0,
+        reviewCount: allReviews.length,
+      },
+    })
+
+    return NextResponse.json({ success: true })
+  } catch (error) {
+    console.error('Error deleting review:', error)
+    return NextResponse.json({ error: 'Failed to delete review' }, { status: 500 })
+  }
+}
+
+export async function PATCH(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const body = await request.json()
+    const { reviewId, rating, reviewBody, waitMinutes, vibes } = body
+    if (!reviewId) return NextResponse.json({ error: 'reviewId is required' }, { status: 400 })
+
+    const user = await prisma.user.findUnique({ where: { email: session.user.email } })
+    if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 })
+
+    const review = await prisma.review.findUnique({ where: { id: reviewId } })
+    if (!review) return NextResponse.json({ error: 'Review not found' }, { status: 404 })
+    if (review.userId !== user.id) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+
+    const updated = await prisma.review.update({
+      where: { id: reviewId },
+      data: {
+        rating,
+        body: reviewBody.trim(),
+        waitMinutes: typeof waitMinutes === 'number' ? waitMinutes : 0,
+        vibes: JSON.stringify(Array.isArray(vibes) ? vibes : []),
+      },
+      include: { user: { select: { name: true, email: true } } },
+    })
+
+    // Recalculate location stats
+    const allReviews = await prisma.review.findMany({ where: { locationId: review.locationId } })
+    await prisma.location.update({
+      where: { id: review.locationId },
+      data: {
+        avgRating: allReviews.reduce((s, r) => s + r.rating, 0) / allReviews.length,
+        avgWaitMinutes: allReviews.reduce((s, r) => s + r.waitMinutes, 0) / allReviews.length,
+        reviewCount: allReviews.length,
+      },
+    })
+
+    return NextResponse.json({ ...updated, vibes: JSON.parse(updated.vibes) })
+  } catch (error) {
+    console.error('Error updating review:', error)
+    return NextResponse.json({ error: 'Failed to update review' }, { status: 500 })
+  }
 }
