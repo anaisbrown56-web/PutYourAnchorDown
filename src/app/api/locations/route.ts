@@ -145,10 +145,11 @@ export async function POST(request: NextRequest) {
       CAMPUS_SPOT: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=800',
       RESTAURANT: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800',
       ATTRACTION: 'https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=800',
-    }
-    const finalImageUrl = imageUrl && typeof imageUrl === 'string' && imageUrl.trim().length > 0
-      ? imageUrl.trim()
-      : defaultImages[category]
+      }
+    const firstCategory = filteredCategories[0] || ''
+    const finalImageUrl = (imageUrl && typeof imageUrl === 'string' && imageUrl.trim().length > 0)
+          ? imageUrl.trim()
+          : defaultImages[firstCategory] || 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=800'
 
     // Create location and initial review in a transaction
     const result = await prisma.$transaction(async (tx) => {
