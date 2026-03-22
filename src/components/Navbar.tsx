@@ -66,9 +66,12 @@ export default function Navbar() {
                   </svg>
                   Create Post
                 </Link>
-                <span className="text-navy-600 text-sm">
+                <Link
+                  href="/profile/edit"
+                  className="text-navy-600 text-sm hover:text-gold-600 transition-colors"
+                >
                   Hi, {session.user?.name?.split(' ')[0]}
-                </span>
+                </Link>
                 <button
                   onClick={() => signOut({ callbackUrl: '/' })}
                   className="bg-silver-100 hover:bg-silver-200 text-navy-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors border border-silver-300"
