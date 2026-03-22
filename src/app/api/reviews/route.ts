@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
       },
       include: {
         user: {
-          select: { name: true, email: true },
+          select: { id: true, name: true, email: true },
         },
       },
     })
@@ -129,7 +129,7 @@ export async function GET(request: NextRequest) {
       where: { locationId },
       include: {
         user: {
-          select: { name: true, email: true },
+          select: { id: true,name: true, email: true },
         },
       },
       orderBy: { createdAt: 'desc' },
