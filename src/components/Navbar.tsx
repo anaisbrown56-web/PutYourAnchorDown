@@ -43,6 +43,12 @@ export default function Navbar() {
             >
               Explore
             </Link>
+            <Link
+              href="/map"
+              className="text-navy-700 hover:text-gold-600 transition-colors font-medium"
+            >
+              Map
+            </Link>
           </div>
 
           {/* Desktop Auth */}
@@ -129,6 +135,13 @@ export default function Navbar() {
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Explore
+              </Link>
+              <Link
+                href="/map"
+                className="text-navy-700 hover:text-gold-600 transition-colors font-medium px-2"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Map
               </Link>
               <div className="pt-2 border-t border-silver-200">
                 {session ? (
