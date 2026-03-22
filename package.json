@@ -16,10 +16,12 @@
     "@prisma/client": "^5.7.0",
     "bcryptjs": "^2.4.3",
     "cloudinary": "^2.9.0",
+    "leaflet": "^1.9.4",
     "next": "14.0.4",
     "next-auth": "^4.24.5",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "react-leaflet": "^4.2.1"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
