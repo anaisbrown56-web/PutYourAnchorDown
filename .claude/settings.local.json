@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(source ~/.nvm/nvm.sh)",
+      "Bash(npx prisma:*)",
+      "Bash(npm run:*)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(sqlite3 /Users/sly/hoohacks/prisma/dev.db \"SELECT id, name, category, vibes, priceLevel, university FROM Location LIMIT 10;\" -header -column)",
+      "Bash(xargs ls:*)",
+      "Bash(sqlite3 /Users/sly/hoohacks/prisma/dev.db \"SELECT id FROM Location LIMIT 1;\")",
+      "Bash(sqlite3 /Users/sly/hoohacks/prisma/dev.db \"SELECT id, email FROM User LIMIT 5;\")",
+      "Bash(sqlite3 /Users/sly/hoohacks/prisma/dev.db \"UPDATE Location SET createdBy = ''cmn137ziu0000b29bgip6315p'' WHERE id = ''cmn137zj10005b29bd8i5hj98'';\")",
+      "Bash(sqlite3 /Users/sly/hoohacks/prisma/dev.db \"SELECT id, name, createdBy FROM Location WHERE id = ''cmn137zj10005b29bd8i5hj98'';\")",
+      "Bash(zip -r /Users/sly/hoohacks.zip . -x \"node_modules/*\" \".next/*\" \"prisma/dev.db\" \".env\" \".env.local\")"
+    ]
+  }
+}

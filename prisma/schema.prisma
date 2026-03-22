@@ -1,0 +1,63 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String        @id @default(cuid())
+  email          String        @unique
+  name           String
+  password       String
+  bio            String        @default("")
+  role           String        @default("STUDENT")
+  university     String        @default("")
+  avatarUrl      String        @default("")
+  graduationYear Int?
+  createdAt      DateTime      @default(now())
+  reviews        Review[]
+  bracketVotes   BracketVote[]
+}
+
+model Location {
+  id             String   @id @default(cuid())
+  name           String
+  description    String
+  category       String
+  address        String
+  imageUrl       String
+  vibes          String
+  priceLevel     String
+  university     String   @default("")
+  avgWaitMinutes Float    @default(0)
+  avgRating      Float    @default(0)
+  reviewCount    Int      @default(0)
+  createdBy      String   @default("")
+  latitude       Float?
+  longitude      Float?
+  createdAt      DateTime @default(now())
+  reviews        Review[]
+}
+
+model Review {
+  id          String   @id @default(cuid())
+  rating      Float
+  body        String
+  waitMinutes Int
+  vibes       String
+  createdAt   DateTime @default(now())
+  userId      String
+  locationId  String
+  user        User     @relation(fields: [userId], references: [id])
+  location    Location @relation(fields: [locationId], references: [id])
+}
+
+model BracketVote {
+  id        String   @id @default(cuid())
+  userId    String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+}

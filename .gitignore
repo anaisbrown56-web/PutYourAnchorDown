@@ -1,0 +1,8 @@
+node_modules
+.vercel
+.env*.local
+.env
+package-lock
+.idea
+.next
+.node_modules
