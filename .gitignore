@@ -5,4 +5,4 @@ node_modules
 package-lock
 .idea
 .next
-node_modules
+.node_modules
