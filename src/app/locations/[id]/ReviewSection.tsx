@@ -147,7 +147,7 @@ export default function ReviewSection({ locationId, initialReviews, isEduUser, i
                         <span className="text-white font-bold text-sm">{review.user.name.charAt(0).toUpperCase()}</span>
                       </div>
                       <div>
-                        {isSignedIn ? (
+                        {session ? (
                           <Link href={`/profile/${review.user.id}`} className="font-semibold text-navy-800 text-sm hover:text-gold-600 transition-colors">
                             {review.user.name}
                           </Link>
