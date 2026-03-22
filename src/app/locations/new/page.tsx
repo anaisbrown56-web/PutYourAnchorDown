@@ -2,7 +2,7 @@
 
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { useState, useEffect } from 'react'
+import {useState, useEffect, useRef} from 'react'
 import StarRating from '@/components/StarRating'
 
 const CATEGORY_OPTIONS = [
@@ -67,6 +67,10 @@ export default function CreatePostPage() {
   const [reviewBody, setReviewBody] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
+  const [addressSuggestions, setAddressSuggestions] = useState<string[]>([])
+  const [showSuggestions, setShowSuggestions] = useState(false)
+
+  const addressDebounceRef = useRef<NodeJS.Timeout | null>(null)
 
   // Fetch universities for suggestions
   useEffect(() => {
@@ -123,6 +127,17 @@ export default function CreatePostPage() {
     if (!file) return
     setImageFile(file)
     setImagePreview(URL.createObjectURL(file))
+  }
+
+  async function fetchAddressSuggestions(query: string) {
+    if (query.length < 3) return setAddressSuggestions([])
+    const res = await fetch(
+        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=5&addressdetails=1&countrycodes=us`,
+        { headers: { 'User-Agent': 'your-app-name' } }
+    )
+    const data = await res.json()
+    setAddressSuggestions(data.map((item: any) => item.display_name))
+    setShowSuggestions(true)
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -224,19 +239,41 @@ export default function CreatePostPage() {
               />
             </div>
 
-            {/* Address */}
-            <div>
+            <div className="relative">
               <label htmlFor="address" className="block text-sm font-semibold text-gray-700 mb-1.5">
                 Address <span className="text-red-500">*</span>
               </label>
               <input
-                id="address"
-                type="text"
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-                placeholder="e.g. 123 University Ave, Charlottesville, VA"
-                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-gray-800 focus:outline-none focus:ring-2 focus:ring-gold-400 focus:border-transparent transition"
+                  id="address"
+                  type="text"
+                  value={address}
+                  onChange={(e) => {
+                    setAddress(e.target.value)
+                    if (addressDebounceRef.current) clearTimeout(addressDebounceRef.current)
+                    addressDebounceRef.current = setTimeout(() => {
+                      fetchAddressSuggestions(e.target.value)
+                    }, 400) // waits 400ms after user stops typing
+                  }}
+                  onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
+                  placeholder="e.g. 123 University Ave, Charlottesville, VA"
+                  className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-gray-800 focus:outline-none focus:ring-2 focus:ring-gold-400 focus:border-transparent transition"
               />
+              {showSuggestions && addressSuggestions.length > 0 && (
+                  <ul className="absolute z-10 w-full bg-white border border-gray-200 rounded-lg shadow-lg mt-1 max-h-60 overflow-y-auto">
+                    {addressSuggestions.map((suggestion, i) => (
+                        <li
+                            key={i}
+                            onMouseDown={() => {
+                              setAddress(suggestion)
+                              setShowSuggestions(false)
+                            }}
+                            className="px-4 py-2.5 text-sm text-gray-700 hover:bg-gold-50 cursor-pointer border-b border-gray-100 last:border-0"
+                        >
+                          {suggestion}
+                        </li>
+                    ))}
+                  </ul>
+              )}
             </div>
 
             {/* University */}
