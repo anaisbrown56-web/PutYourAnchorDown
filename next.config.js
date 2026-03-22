@@ -12,6 +12,7 @@ const nextConfig = {
     serverComponentsExternalPackages: ['@prisma/client', 'bcryptjs'],
   },
   output: 'standalone',
+  transpilePackages: ['leaflet', 'react-leaflet'],
 }
 
 module.exports = nextConfig
