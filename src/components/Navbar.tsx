@@ -43,18 +43,6 @@ export default function Navbar() {
             >
               Explore
             </Link>
-            <Link
-              href="/locations?category=CAMPUS_SPOT"
-              className="text-navy-700 hover:text-gold-600 transition-colors font-medium"
-            >
-              Campus
-            </Link>
-            <Link
-              href="/locations?category=RESTAURANT"
-              className="text-navy-700 hover:text-gold-600 transition-colors font-medium"
-            >
-              Eats
-            </Link>
           </div>
 
           {/* Desktop Auth */}
@@ -141,20 +129,6 @@ export default function Navbar() {
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Explore
-              </Link>
-              <Link
-                href="/locations?category=CAMPUS_SPOT"
-                className="text-navy-700 hover:text-gold-600 transition-colors font-medium px-2"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Campus Spots
-              </Link>
-              <Link
-                href="/locations?category=RESTAURANT"
-                className="text-navy-700 hover:text-gold-600 transition-colors font-medium px-2"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Eats
               </Link>
               <div className="pt-2 border-t border-silver-200">
                 {session ? (
