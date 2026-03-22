@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { geocodeAddress } from '@/lib/geocode'
 
 export async function GET(request: NextRequest) {
   try {
@@ -138,6 +139,7 @@ export async function POST(request: NextRequest) {
     }
 
     const parsedVibes = Array.isArray(vibes) ? vibes : []
+    const coords = await geocodeAddress(address)
     const parsedWait = typeof waitMinutes === 'number' && waitMinutes >= 0 ? waitMinutes : 0
 
     // Default image based on category if none provided
@@ -167,6 +169,8 @@ export async function POST(request: NextRequest) {
           avgRating: rating,
           reviewCount: 1,
           createdBy: user.id,
+          latitude: coords?.latitude ?? null,
+          longitude: coords?.longitude ?? null,
         },
       })
 
