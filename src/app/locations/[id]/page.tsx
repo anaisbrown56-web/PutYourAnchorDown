@@ -41,7 +41,7 @@ async function getLocation(id: string) {
         reviews: {
           include: {
             user: {
-              select: { name: true, email: true },
+              select: { id: true, name: true, email: true },
             },
           },
           orderBy: { createdAt: 'desc' },
@@ -180,6 +180,7 @@ export default async function LocationDetailPage({ params }: PageProps) {
             locationId={location.id}
             initialReviews={reviews}
             isEduUser={isEduUser}
+            isSignedIn={isSignedIn}
           />
         </div>
 

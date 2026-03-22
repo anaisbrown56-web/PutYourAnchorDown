@@ -13,6 +13,7 @@ interface Review {
   vibes: string[]
   createdAt: string | Date
   user: {
+    id: string
     name: string
     email: string
   }
@@ -22,6 +23,7 @@ interface ReviewSectionProps {
   locationId: string
   initialReviews: Review[]
   isEduUser: boolean
+  isSignedIn: boolean
 }
 
 const VIBES = ['Chill','Lively','Study-Friendly','Social','Romantic','Adventurous','Outdoorsy']
@@ -38,7 +40,7 @@ function maskEmail(email: string): string {
   return `${masked}@${domain}`
 }
 
-export default function ReviewSection({ locationId, initialReviews, isEduUser }: ReviewSectionProps) {
+export default function ReviewSection({ locationId, initialReviews, isEduUser, isSignedIn }: ReviewSectionProps) {
   const { data: session } = useSession()
   const [reviews, setReviews] = useState<Review[]>(initialReviews)
   const [refreshing, setRefreshing] = useState(false)
@@ -144,9 +146,16 @@ export default function ReviewSection({ locationId, initialReviews, isEduUser }:
                         <span className="text-white font-bold text-sm">{review.user.name.charAt(0).toUpperCase()}</span>
                       </div>
                       <div>
-                        <p className="font-semibold text-navy-800 text-sm">{review.user.name}</p>
+                        {isSignedIn ? (
+                          <Link href={`/profile/${review.user.id}`} className="font-semibold text-navy-800 text-sm hover:text-gold-600 transition-colors">
+                            {review.user.name}
+                          </Link>
+                        ) : (
+                          <p className="font-semibold text-navy-800 text-sm">{review.user.name}</p>
+                        )}
                         <p className="text-gray-400 text-xs">{maskEmail(review.user.email)}</p>
                       </div>
+</div>
                     </div>
                     <div className="flex items-center gap-2 flex-shrink-0">
                       <div className="text-right">
