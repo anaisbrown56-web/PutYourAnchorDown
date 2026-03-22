@@ -60,6 +60,9 @@ export default function CreatePostPage() {
   const [priceLevel, setPriceLevel] = useState('')
   const [waitMinutes, setWaitMinutes] = useState(0)
   const [imageUrl, setImageUrl] = useState('')
+  const [imageFile, setImageFile] = useState<File | null>(null)
+  const [imagePreview, setImagePreview] = useState('')
+  const [uploading, setUploading] = useState(false)
   const [rating, setRating] = useState(0)
   const [reviewBody, setReviewBody] = useState('')
   const [submitting, setSubmitting] = useState(false)
@@ -115,6 +118,13 @@ export default function CreatePostPage() {
     )
   }
 
+  function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setImageFile(file)
+    setImagePreview(URL.createObjectURL(file))
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError('')
@@ -133,6 +143,16 @@ export default function CreatePostPage() {
     setSubmitting(true)
 
     try {
+      let uploadedUrl = ''
+      if (imageFile) {
+        setUploading(true)
+        const fd = new FormData()
+        fd.append('file', imageFile)
+        const uploadRes = await fetch('/api/upload', { method: 'POST', body: fd })
+        const uploadData = await uploadRes.json()
+        uploadedUrl = uploadData.url
+        setUploading(false)
+      }
       const res = await fetch('/api/locations', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -145,7 +165,7 @@ export default function CreatePostPage() {
           vibes,
           priceLevel,
           waitMinutes,
-          imageUrl: imageUrl.trim(),
+          imageUrl: uploadedUrl || imageUrl.trim(),
           rating,
           reviewBody: reviewBody.trim(),
         }),
@@ -190,16 +210,33 @@ export default function CreatePostPage() {
           <div className="space-y-5">
             {/* Name */}
             <div>
-              <label htmlFor="name" className="block text-sm font-semibold text-gray-700 mb-1.5">
-                Location Name <span className="text-red-500">*</span>
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                Photo
+                <span className="font-normal text-gray-400 ml-1">(optional)</span>
               </label>
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gold-400 transition-colors cursor-pointer"
+                onClick={() => document.getElementById('image-upload')?.click()}>
+                {imagePreview ? (
+                  <div className="space-y-3">
+                    <img src={imagePreview} alt="Preview" className="w-full h-48 object-cover rounded-lg" />
+                    <p className="text-sm text-gray-500">Click to change photo</p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <svg className="w-10 h-10 text-gray-400 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <p className="text-sm text-gray-500">Click to upload a photo</p>
+                    <p className="text-xs text-gray-400">PNG, JPG, WEBP up to 10MB</p>
+                  </div>
+                )}
+              </div>
               <input
-                id="name"
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="e.g. The Corner Cafe, Clark Library, Blue Ridge Trail"
-                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-gray-800 focus:outline-none focus:ring-2 focus:ring-gold-400 focus:border-transparent transition"
+                id="image-upload"
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                className="hidden"
               />
             </div>
 
@@ -462,7 +499,7 @@ export default function CreatePostPage() {
             disabled={submitting}
             className="bg-gold-500 hover:bg-gold-400 disabled:bg-gray-300 disabled:cursor-not-allowed text-navy-900 font-bold px-8 py-3 rounded-lg transition-colors flex items-center gap-2"
           >
-            {submitting ? (
+            {submitting || uploading ? (
               <>
                 <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
